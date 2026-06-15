@@ -1,0 +1,14 @@
+.game-canvas {
+  width: min(100%, 640px);
+  aspect-ratio: 4 / 3;
+  border: 3px solid #4a4e69;
+  border-radius: 8px;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.game-canvas canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}

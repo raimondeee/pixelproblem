@@ -1,0 +1,224 @@
+.battle-field {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #0f0f1a;
+}
+
+.battle-field__background {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
+.battle-field__scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(10, 15, 40, 0.08) 0%,
+    rgba(0, 0, 0, 0.3) 100%
+  );
+  pointer-events: none;
+}
+
+.battle-field__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+}
+
+.battle-field__main {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.battle-field__spell-rail {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(4.5rem, 12vw, 5.5rem);
+  padding: 0.5rem 0.35rem;
+  border-right: 2px solid rgba(74, 78, 105, 0.75);
+  background: linear-gradient(180deg, rgba(15, 15, 26, 0.82) 0%, rgba(26, 26, 46, 0.88) 100%);
+}
+
+.battle-field__arena {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 42%) minmax(0, 58%);
+  min-height: 0;
+  overflow: hidden;
+  padding: clamp(0.35rem, 1.5vw, 0.75rem);
+  container-type: size;
+  position: relative;
+  --unit-cell: min(44cqi, calc((100cqh - 1.5rem) / 3.15), 13rem);
+  --unit-sprite: calc(var(--unit-cell) * 0.88);
+}
+
+.battle-field__party,
+.battle-field__enemies {
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+}
+
+.battle-field__party {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.battle-field__party > * {
+  pointer-events: auto;
+}
+
+.battle-field__party .team-status {
+  flex-shrink: 0;
+  z-index: 2;
+}
+
+.battle-field__party .party-formation__hero-anchor--field {
+  flex-shrink: 0;
+  width: 11rem;
+  max-width: 100%;
+  margin-top: 0.35rem;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  z-index: 2;
+}
+
+.battle-field__party .party-formation--companions {
+  position: absolute;
+  top: 150px;
+  left: calc(11rem + clamp(0.5rem, 2vw, 1rem));
+  z-index: 1;
+  max-height: calc(100% - 150px);
+  width: auto;
+  overflow: hidden;
+}
+
+.battle-field__enemies {
+  align-items: flex-end;
+  justify-content: stretch;
+  overflow: hidden;
+  padding-bottom: 30px;
+}
+
+.battle-field__command {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.45rem clamp(0.65rem, 2vw, 1rem);
+  border-top: 2px solid rgba(74, 78, 105, 0.85);
+  background: linear-gradient(180deg, rgba(26, 26, 46, 0.94) 0%, rgba(15, 15, 26, 0.98) 100%);
+}
+
+.battle-field__status {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.battle-field__message {
+  margin: 0;
+  min-width: 0;
+  color: #f8f9fa;
+  font-size: clamp(0.75rem, 2vw, 0.9rem);
+  text-shadow: 1px 1px 0 #000;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.battle-field__combo {
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #ffd166;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.battle-field__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.battle-field__flee,
+.battle-field__continue,
+.battle-field__formation {
+  min-height: 2.25rem;
+  padding: 0.35rem 0.85rem;
+  border: 2px solid #ff4d6d;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.35);
+  color: #ffccd5;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+  white-space: nowrap;
+}
+
+.battle-field__formation {
+  border-color: #ffd166;
+  color: #ffd166;
+}
+
+.battle-field__formation.is-active {
+  background: rgba(255, 209, 102, 0.2);
+  box-shadow: 0 0 0 2px rgba(255, 209, 102, 0.45);
+}
+
+.battle-field__continue {
+  border-color: #80ed99;
+  color: #d8f3dc;
+}
+
+@media (max-width: 640px) {
+  .battle-field__command {
+    flex-wrap: wrap;
+  }
+
+  .battle-field__message {
+    flex-basis: 100%;
+    white-space: normal;
+  }
+
+  .battle-field__arena {
+    grid-template-columns: minmax(0, 40%) minmax(0, 60%);
+  }
+
+  .battle-field__spell-rail {
+    width: clamp(3.75rem, 14vw, 4.75rem);
+  }
+}

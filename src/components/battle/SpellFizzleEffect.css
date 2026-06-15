@@ -1,0 +1,130 @@
+.spell-fizzle-effect {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  overflow: hidden;
+  animation: fizzle-shake 0.55s ease-out;
+}
+
+.spell-fizzle-effect__flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 45%, rgba(255, 80, 120, 0.55), rgba(80, 20, 60, 0.35) 55%, transparent 75%);
+  animation: fizzle-flash 0.55s ease-out forwards;
+}
+
+.spell-fizzle-effect__smoke {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 30% 60%, rgba(120, 120, 140, 0.35), transparent 35%),
+    radial-gradient(circle at 70% 40%, rgba(100, 100, 120, 0.3), transparent 40%);
+  animation: fizzle-smoke 0.65s ease-out forwards;
+}
+
+.spell-fizzle-effect__static {
+  position: absolute;
+  inset: 0;
+  opacity: 0.18;
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.08) 0,
+    rgba(255, 255, 255, 0.08) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  animation: fizzle-static 0.35s steps(4) 2;
+}
+
+.spell-fizzle-effect__label {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  font-size: clamp(2rem, 8vw, 3.5rem);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: #ffccd5;
+  text-shadow:
+    0 0 12px rgba(255, 77, 109, 0.9),
+    3px 3px 0 #590d22;
+  animation: fizzle-label 0.55s ease-out forwards;
+}
+
+@keyframes fizzle-shake {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  15% {
+    transform: translate(-8px, 3px);
+  }
+
+  30% {
+    transform: translate(7px, -4px);
+  }
+
+  45% {
+    transform: translate(-6px, 2px);
+  }
+
+  60% {
+    transform: translate(5px, -2px);
+  }
+
+  75% {
+    transform: translate(-3px, 1px);
+  }
+}
+
+@keyframes fizzle-flash {
+  0% {
+    opacity: 0.95;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes fizzle-smoke {
+  0% {
+    opacity: 0.85;
+    transform: scale(0.95);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes fizzle-static {
+  0% {
+    opacity: 0.25;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes fizzle-label {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.7);
+  }
+
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -60%) scale(1);
+  }
+}

@@ -1,0 +1,97 @@
+.team-status {
+  flex-shrink: 0;
+  width: 100%;
+  max-width: 11rem;
+  padding: 0.45rem 0.55rem;
+  border: 2px solid rgba(74, 78, 105, 0.85);
+  border-radius: 8px;
+  background: rgba(15, 15, 26, 0.82);
+}
+
+.team-status__heading {
+  margin: 0 0 0.35rem;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #ced4da;
+}
+
+.team-status__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.team-status__entry {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+}
+
+.team-status__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.35rem;
+}
+
+.team-status__name {
+  min-width: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #f8f9fa;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.team-status__hp {
+  flex-shrink: 0;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #adb5bd;
+}
+
+.team-status__bar {
+  height: 0.4rem;
+  border: 1px solid #000;
+  background: #2b2d42;
+}
+
+.team-status__fill {
+  display: block;
+  height: 100%;
+  background: linear-gradient(180deg, #80ed99, #38b000);
+}
+
+.team-status__fill--hero {
+  background: linear-gradient(180deg, #ffd166, #f4a261);
+}
+
+.team-status__meta {
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: #adb5bd;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 640px) {
+  .team-status {
+    max-width: 100%;
+  }
+
+  .team-status__list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.35rem;
+  }
+
+  .team-status__entry--hero {
+    grid-column: 1 / -1;
+  }
+}

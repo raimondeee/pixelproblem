@@ -1,0 +1,81 @@
+.spell-deck {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.spell-deck--vertical {
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  gap: 0.45rem;
+}
+
+.spell-deck--disabled {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.spell-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  padding: 0.2rem;
+  border: 2px solid var(--spell-color, #888);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.spell-deck--vertical .spell-card {
+  width: 100%;
+}
+
+.spell-card:active,
+.spell-card.is-active {
+  transform: translateY(1px);
+  box-shadow: 0 0 0 1px var(--spell-color, #888);
+}
+
+.spell-card__art {
+  width: clamp(2.5rem, 8vw, 3.25rem);
+  height: clamp(3.25rem, 10vw, 4rem);
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.45));
+}
+
+.spell-deck--vertical .spell-card__art {
+  width: 100%;
+  max-width: 3.5rem;
+  height: clamp(3rem, 9vw, 3.75rem);
+}
+
+.spell-card__name {
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: #f8f9fa;
+  text-align: center;
+  max-width: clamp(2.5rem, 8vw, 3.25rem);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spell-deck--vertical .spell-card__name {
+  max-width: 100%;
+}
+
+@media (max-width: 480px) {
+  .spell-deck:not(.spell-deck--vertical) .spell-card__name {
+    display: none;
+  }
+
+  .spell-card__art {
+    width: 2.75rem;
+    height: 3.5rem;
+  }
+}

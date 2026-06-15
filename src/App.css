@@ -1,0 +1,36 @@
+.app {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: radial-gradient(circle at top, #2b2d42, #0b0b14 70%);
+  color: #f8f9fa;
+}
+
+.app__header {
+  text-align: center;
+}
+
+.app__header h1 {
+  margin: 0;
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+}
+
+.app__header p {
+  margin: 0.35rem 0 0;
+  color: #ced4da;
+}
+
+.app__stage {
+  position: relative;
+  width: min(100%, 640px);
+}
+
+.app__hint {
+  max-width: 640px;
+  text-align: center;
+  color: #adb5bd;
+  font-size: 0.9rem;
+}

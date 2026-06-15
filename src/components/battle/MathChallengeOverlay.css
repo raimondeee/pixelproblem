@@ -1,0 +1,259 @@
+.math-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+.math-overlay__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(4, 6, 18, 0.88);
+}
+
+.math-overlay__panel {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: 1rem;
+  gap: 0.75rem;
+}
+
+.math-overlay__top {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(140px, 0.38fr) minmax(0, 1.62fr);
+  gap: 0.75rem;
+  min-height: 0;
+}
+
+.math-overlay__question {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  align-self: start;
+  max-width: 100%;
+  padding: 0.65rem 0.75rem;
+  border: 3px solid #4a4e69;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #2b2d42 0%, #1a1a2e 100%);
+}
+
+.math-overlay__casting {
+  margin: 0;
+  color: #ced4da;
+  font-size: 0.75rem;
+  line-height: 1.3;
+}
+
+.math-overlay__prompt {
+  margin: 0;
+  font-size: clamp(1.15rem, 2.5vw, 1.65rem);
+  line-height: 1.15;
+  color: #f8f9fa;
+  text-shadow: 2px 2px 0 #000;
+}
+
+.math-overlay__meta {
+  margin: 0;
+  color: #adb5bd;
+  font-size: 0.72rem;
+}
+
+.math-overlay__feedback {
+  margin: 0;
+  color: #ff758f;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.math-overlay__scratch {
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+}
+
+.math-overlay__answer-bar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border: 3px solid #4a4e69;
+  border-radius: 8px;
+  background: #0f0f1a;
+}
+
+.math-overlay__answer-label {
+  color: #ced4da;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.math-overlay__answer-input {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid #4a4e69;
+  border-radius: 6px;
+  background: #fefae0;
+  color: #1a1a2e;
+  font: inherit;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.math-overlay__answer-input:focus {
+  outline: 2px solid #9d4edd;
+  outline-offset: 1px;
+}
+
+.math-overlay__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.math-overlay__setting {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #ced4da;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+
+.math-overlay__setting input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: #9d4edd;
+  cursor: pointer;
+}
+
+.math-overlay__confirm-dialog {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(4, 6, 18, 0.72);
+}
+
+.math-overlay__confirm-card {
+  width: min(100%, 22rem);
+  padding: 1rem 1.1rem;
+  border: 3px solid #4a4e69;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #2b2d42 0%, #1a1a2e 100%);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+}
+
+.math-overlay__confirm-title {
+  margin: 0 0 0.5rem;
+  color: #f8f9fa;
+  font-size: 1.05rem;
+}
+
+.math-overlay__confirm-body {
+  margin: 0 0 1rem;
+  color: #ced4da;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.math-overlay__confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.math-overlay__confirm-back,
+.math-overlay__confirm-cast {
+  min-height: 2.5rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 6px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.math-overlay__confirm-back {
+  border: 2px solid #6c757d;
+  background: transparent;
+  color: #ced4da;
+}
+
+.math-overlay__confirm-cast {
+  border: 2px solid #9d4edd;
+  background: #5a189a;
+  color: #f8f9fa;
+}
+
+.math-overlay__cancel,
+.math-overlay__submit {
+  min-height: 2.75rem;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.math-overlay__submit:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.math-overlay__cancel {
+  border: 2px solid #6c757d;
+  background: transparent;
+  color: #ced4da;
+}
+
+.math-overlay__submit {
+  border: 2px solid #9d4edd;
+  background: #5a189a;
+  color: #f8f9fa;
+}
+
+@media (max-width: 720px) {
+  .math-overlay__top {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(220px, 1fr);
+  }
+
+  .math-overlay__question {
+    align-self: stretch;
+  }
+
+  .math-overlay__answer-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .math-overlay__actions {
+    justify-content: stretch;
+  }
+
+  .math-overlay__setting {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .math-overlay__cancel,
+  .math-overlay__submit {
+    flex: 1;
+  }
+}

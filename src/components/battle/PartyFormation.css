@@ -1,0 +1,210 @@
+.party-formation--companions {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 0;
+  --slot-scale: 1;
+  --party-sprite: calc(var(--unit-sprite) * 0.75);
+  --sprite-shadow: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.58))
+    drop-shadow(0 5px 9px rgba(0, 0, 0, 0.38));
+}
+
+.party-formation__hero-anchor--field {
+  --party-sprite: calc(var(--unit-sprite) * 0.75);
+  --sprite-shadow: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.58))
+    drop-shadow(0 5px 9px rgba(0, 0, 0, 0.38));
+}
+
+.party-formation {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  padding: 0;
+  --slot-scale: 1;
+  --party-sprite: calc(var(--unit-sprite) * 0.75);
+  --sprite-shadow: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.58))
+    drop-shadow(0 5px 9px rgba(0, 0, 0, 0.38));
+}
+
+.party-formation--edit {
+  outline: 2px dashed rgba(255, 209, 102, 0.65);
+  outline-offset: 2px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.party-formation__hint {
+  position: absolute;
+  top: 0.25rem;
+  left: 0.25rem;
+  right: 0.25rem;
+  z-index: 2;
+  font-size: 0.65rem;
+  color: #ffd166;
+  text-align: center;
+  padding: 0.25rem;
+  text-shadow: 1px 1px 0 #000;
+}
+
+.party-formation__layout {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: clamp(0.5rem, 2vw, 1rem);
+  width: 100%;
+  min-height: 0;
+}
+
+.party-formation__hero-anchor,
+.party-formation__hero-anchor--field {
+  flex: 0 0 11rem;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  width: 11rem;
+  max-width: 100%;
+}
+
+.party-formation__companions {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  gap: clamp(0.25rem, 0.9vh, 0.55rem);
+  flex-shrink: 0;
+  min-height: 0;
+  padding-top: 0;
+}
+
+.party-formation__companion-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.party-sprite {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  margin: 0;
+  min-width: 0;
+  flex: 0 1 auto;
+}
+
+.party-sprite--editable {
+  gap: 0.35rem;
+}
+
+.party-sprite__select {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.15rem;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.party-sprite--editable .party-sprite__select:hover,
+.party-sprite--editable .party-sprite__select:focus-visible {
+  border-color: rgba(255, 209, 102, 0.75);
+  outline: none;
+}
+
+.party-sprite__row-controls {
+  display: flex;
+  gap: 0.15rem;
+}
+
+.party-sprite__row-btn {
+  min-width: 2.2rem;
+  padding: 0.1rem 0.25rem;
+  border: 1px solid #4a4e69;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.45);
+  color: #ced4da;
+  font: inherit;
+  font-size: 0.5rem;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.party-sprite__row-btn.is-active {
+  border-color: #ffd166;
+  color: #ffd166;
+  background: rgba(255, 209, 102, 0.15);
+}
+
+.party-sprite__body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.party-sprite__hp-fill--hero {
+  background: linear-gradient(180deg, #ffd166, #f4a261);
+}
+
+.party-sprite__image {
+  width: auto;
+  height: var(--party-sprite);
+  max-width: var(--party-sprite);
+  max-height: var(--party-sprite);
+  object-fit: contain;
+  object-position: bottom center;
+  image-rendering: pixelated;
+  filter: var(--sprite-shadow);
+  flex-shrink: 0;
+}
+
+.party-sprite__image--pet {
+  transform: scaleX(-1);
+}
+
+.party-sprite__hp-bar {
+  box-sizing: border-box;
+  width: 3.25rem;
+  height: 0.55rem;
+  margin-bottom: 0.12rem;
+  border: 2px solid #000;
+  background: #2b2d42;
+  flex-shrink: 0;
+}
+
+.party-sprite__hp-fill {
+  display: block;
+  height: 100%;
+  background: linear-gradient(180deg, #80ed99, #38b000);
+}
+
+@media (max-width: 640px) {
+  .party-formation__hero-anchor,
+  .party-formation__hero-anchor--field {
+    flex-basis: min(11rem, 42vw);
+    width: min(11rem, 42vw);
+  }
+
+  .battle-field__party .party-formation--companions {
+    left: calc(min(11rem, 42vw) + clamp(0.5rem, 2vw, 1rem));
+  }
+
+  .party-formation__companions {
+    gap: clamp(0.25rem, 1vh, 0.55rem);
+  }
+}
