@@ -1,0 +1,74 @@
+.turn-order-bar {
+  position: absolute;
+  top: 0.5rem;
+  left: 50%;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: calc(100% - 1rem);
+  padding: 0.35rem 0.6rem;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  background: rgba(10, 10, 20, 0.82);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.turn-order-bar__round {
+  flex-shrink: 0;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #ffd166;
+}
+
+.turn-order-bar__list {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.turn-order-bar__list::-webkit-scrollbar {
+  display: none;
+}
+
+.turn-order-bar__item {
+  flex-shrink: 0;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #d8dee9;
+  background: rgba(255, 255, 255, 0.08);
+  white-space: nowrap;
+}
+
+.turn-order-bar__item--hero {
+  color: #80ed99;
+}
+
+.turn-order-bar__item--pet {
+  color: #90e0ef;
+}
+
+.turn-order-bar__item--enemy {
+  color: #ff8fab;
+}
+
+.turn-order-bar__item.is-current {
+  box-shadow: 0 0 0 2px rgba(255, 209, 102, 0.85);
+  background: rgba(255, 209, 102, 0.18);
+  color: #fff;
+}
+
+.turn-order-bar__item.is-defeated {
+  opacity: 0.35;
+  text-decoration: line-through;
+}

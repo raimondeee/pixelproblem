@@ -8,29 +8,28 @@
 
 .spell-cast-animation__projectile {
   position: absolute;
-  width: clamp(72px, 14vw, 120px);
-  height: clamp(72px, 14vw, 120px);
+  width: var(--spell-size, clamp(72px, 14vw, 120px));
+  height: var(--spell-size, clamp(72px, 14vw, 120px));
   object-fit: contain;
   image-rendering: pixelated;
   filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.35));
-  transform: rotate(var(--spell-rotation, 45deg));
+  transform-origin: 50% 100%;
+  transform: rotate(var(--spell-rotation, 0deg)) scaleX(var(--spell-flip, 1));
   opacity: 0;
 }
 
-.spell-cast-animation__projectile.is-traveling {
+.spell-cast-animation__projectile.is-ready.is-traveling {
   animation: spell-projectile-travel 0.9s cubic-bezier(0.25, 0.85, 0.35, 1) forwards;
 }
 
-.spell-cast-animation__projectile.is-impact {
-  left: 68% !important;
-  top: 38% !important;
+.spell-cast-animation__projectile.is-ready.is-impact {
   animation: spell-projectile-impact 0.35s ease-out forwards;
 }
 
 @keyframes spell-projectile-travel {
   0% {
-    left: 8%;
-    top: 48%;
+    left: calc(var(--spell-origin-x) - var(--spell-size) * 0.5);
+    top: calc(var(--spell-origin-y) - var(--spell-size));
     opacity: 0;
     scale: 0.65;
   }
@@ -41,8 +40,8 @@
   }
 
   100% {
-    left: 68%;
-    top: 38%;
+    left: calc(var(--spell-target-x) - var(--spell-size) * 0.5);
+    top: var(--spell-target-y);
     opacity: 1;
     scale: 1.15;
   }
@@ -50,6 +49,8 @@
 
 @keyframes spell-projectile-impact {
   0% {
+    left: calc(var(--spell-target-x) - var(--spell-size) * 0.5);
+    top: var(--spell-target-y);
     opacity: 1;
     scale: 1.15;
     filter: drop-shadow(0 0 16px rgba(255, 255, 255, 0.6));
@@ -65,11 +66,15 @@
 .spell-cast-animation__flash {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 70% 40%, rgba(255, 255, 255, 0.45), transparent 55%);
   opacity: 0;
 }
 
 .spell-cast-animation__flash.is-active {
+  background: radial-gradient(
+    circle at var(--spell-target-x) var(--spell-target-y),
+    rgba(255, 255, 255, 0.45),
+    transparent 55%
+  );
   animation: spell-impact-flash 0.35s ease-out forwards;
 }
 

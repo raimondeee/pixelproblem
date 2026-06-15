@@ -6,6 +6,15 @@ export type FormationRow = 'back' | 'mid' | 'front';
 
 export type BattlePhase = 'field' | 'math' | 'casting';
 
+export type BattleOutcome = 'ongoing' | 'victory' | 'defeat';
+
+export type BattleActorKind = 'hero' | 'pet' | 'enemy';
+
+export interface BattleActorRef {
+  id: string;
+  kind: BattleActorKind;
+}
+
 export type SpellElement = 'fire' | 'water' | 'earth' | 'wind';
 
 export type SpellTargetScope = 'single' | 'all';
@@ -60,6 +69,7 @@ export interface BattleEnemy {
   maxHp: number;
   hp: number;
   gridSlot: number;
+  initiative: number;
 }
 
 export type Effectiveness = 'weak' | 'neutral' | 'resist';
@@ -70,10 +80,17 @@ export interface SpellHit {
   effectiveness: Effectiveness;
 }
 
+export interface AllyHit {
+  allyId: string;
+  damage: number;
+  effectiveness: Effectiveness;
+}
+
 export interface PendingCast {
   spell: Spell;
-  hits: SpellHit[];
   casterId: string;
+  hits?: SpellHit[];
+  allyHits?: AllyHit[];
 }
 
 export interface BattleState {
@@ -83,8 +100,13 @@ export interface BattleState {
   pets: Pet[];
   enemies: BattleEnemy[];
   targetEnemyId: string | null;
-  /** Party member casting spells — hero or pet id */
+  /** Party member whose turn it is — hero or pet id */
   activeCasterId: string | null;
+  /** Initiative-sorted queue for the current round */
+  turnOrder: BattleActorRef[];
+  turnIndex: number;
+  roundNumber: number;
+  battleOutcome: BattleOutcome;
   /** Correct-answer streak — fuels a future ultimate spell */
   comboStreak: number;
   activeSpell: Spell | null;

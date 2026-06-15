@@ -193,6 +193,52 @@
   background: linear-gradient(180deg, #80ed99, #38b000);
 }
 
+.party-sprite--active-turn .party-sprite__body {
+  outline: 3px solid #ffd166;
+  outline-offset: 3px;
+  border-radius: 6px;
+  box-shadow: 0 0 12px rgba(255, 209, 102, 0.55);
+}
+
+.party-sprite--hit .party-sprite__image {
+  animation: party-hit-shake 0.35s ease-out;
+  filter: brightness(1.25) var(--sprite-shadow);
+}
+
+@keyframes party-hit-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-4px);
+  }
+
+  75% {
+    transform: translateX(4px);
+  }
+}
+
+.party-sprite--hit .party-sprite__image--pet {
+  animation: party-hit-shake-pet 0.35s ease-out;
+}
+
+@keyframes party-hit-shake-pet {
+  0%,
+  100% {
+    transform: scaleX(-1) translateX(0);
+  }
+
+  25% {
+    transform: scaleX(-1) translateX(4px);
+  }
+
+  75% {
+    transform: scaleX(-1) translateX(-4px);
+  }
+}
+
 @media (max-width: 640px) {
   .party-formation__hero-anchor,
   .party-formation__hero-anchor--field {

@@ -185,6 +185,28 @@
   box-shadow: 0 0 12px rgba(255, 209, 102, 0.55);
 }
 
+.enemy-sprite--active-turn .enemy-sprite__body {
+  outline: 3px solid #ff8fab;
+  outline-offset: 3px;
+  border-radius: 6px;
+  box-shadow: 0 0 12px rgba(255, 143, 171, 0.55);
+}
+
+.enemy-sprite--capturable .enemy-sprite__body {
+  outline: 2px dashed #90e0ef;
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+
+.enemy-sprite__capture-tag {
+  font-size: 0.45rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #90e0ef;
+  text-shadow: 1px 1px 0 #000;
+}
+
 .enemy-sprite--selectable:not(.enemy-sprite--defeated):hover .enemy-sprite__body {
   outline: 2px solid rgba(255, 209, 102, 0.65);
   outline-offset: 2px;

@@ -7,6 +7,8 @@ interface EnemyGridProps {
   enemies: BattleEnemy[];
   targetEnemyId?: string | null;
   hitEnemyIds?: string[];
+  capturableEnemyIds?: string[];
+  activeActorId?: string | null;
   selectable?: boolean;
   onSelectTarget?: (enemyId: string) => void;
 }
@@ -15,6 +17,8 @@ export function EnemyGrid({
   enemies,
   targetEnemyId = null,
   hitEnemyIds = [],
+  capturableEnemyIds = [],
+  activeActorId = null,
   selectable = false,
   onSelectTarget,
 }: EnemyGridProps) {
@@ -39,6 +43,8 @@ export function EnemyGrid({
               enemy={enemy}
               isTarget={enemy.id === targetEnemyId}
               isHit={hitEnemyIds.includes(enemy.id)}
+              isCapturable={capturableEnemyIds.includes(enemy.id)}
+              isActive={enemy.id === activeActorId}
               selectable={selectable && enemy.hp > 0}
               onSelect={() => onSelectTarget?.(enemy.id)}
             />
@@ -53,17 +59,33 @@ function EnemySprite({
   enemy,
   isTarget,
   isHit,
+  isCapturable,
+  isActive,
   selectable,
   onSelect,
 }: {
   enemy: BattleEnemy;
   isTarget: boolean;
   isHit: boolean;
+  isCapturable: boolean;
+  isActive: boolean;
   selectable: boolean;
   onSelect: () => void;
 }) {
   const isDefeated = enemy.hp <= 0;
   const hpPercent = Math.round((enemy.hp / enemy.maxHp) * 100);
+
+  const className = [
+    'enemy-sprite',
+    selectable ? 'enemy-sprite--selectable' : '',
+    isTarget ? 'enemy-sprite--targeted' : '',
+    isDefeated ? 'enemy-sprite--defeated' : '',
+    isHit ? 'enemy-sprite--hit' : '',
+    isCapturable ? 'enemy-sprite--capturable' : '',
+    isActive ? 'enemy-sprite--active-turn' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   const content = (
     <>
@@ -90,6 +112,7 @@ function EnemySprite({
         </span>
         <span className="enemy-sprite__name">{enemy.name}</span>
         <span className="enemy-sprite__weakness">{getWeaknessLabel(enemy.element)}</span>
+        {isCapturable ? <span className="enemy-sprite__capture-tag">Capture!</span> : null}
       </div>
     </>
   );
@@ -98,7 +121,8 @@ function EnemySprite({
     return (
       <button
         type="button"
-        className={`enemy-sprite enemy-sprite--selectable ${isTarget ? 'enemy-sprite--targeted' : ''} ${isDefeated ? 'enemy-sprite--defeated' : ''} ${isHit ? 'enemy-sprite--hit' : ''}`}
+        className={className}
+        data-battle-unit-id={enemy.id}
         onClick={onSelect}
         aria-label={`Target ${enemy.name}`}
         aria-pressed={isTarget}
@@ -109,9 +133,7 @@ function EnemySprite({
   }
 
   return (
-    <figure
-      className={`enemy-sprite ${isDefeated ? 'enemy-sprite--defeated' : ''} ${isHit ? 'enemy-sprite--hit' : ''} ${isTarget ? 'enemy-sprite--targeted' : ''}`}
-    >
+    <figure className={className} data-battle-unit-id={enemy.id}>
       {content}
     </figure>
   );

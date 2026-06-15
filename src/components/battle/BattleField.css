@@ -174,7 +174,8 @@
 
 .battle-field__flee,
 .battle-field__continue,
-.battle-field__formation {
+.battle-field__formation,
+.battle-field__capture {
   min-height: 2.25rem;
   padding: 0.35rem 0.85rem;
   border: 2px solid #ff4d6d;
@@ -187,6 +188,30 @@
   cursor: pointer;
   touch-action: manipulation;
   white-space: nowrap;
+}
+
+.battle-field__capture {
+  border-color: #90e0ef;
+  color: #caf0f8;
+  animation: capture-pulse 1.4s ease-in-out infinite;
+}
+
+.battle-field__capture:disabled,
+.battle-field__formation:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  animation: none;
+}
+
+@keyframes capture-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(144, 224, 239, 0.35);
+  }
+
+  50% {
+    box-shadow: 0 0 0 4px rgba(144, 224, 239, 0.15);
+  }
 }
 
 .battle-field__formation {

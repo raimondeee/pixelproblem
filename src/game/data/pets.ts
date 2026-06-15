@@ -31,6 +31,6 @@ export const DEFAULT_PETS: Pet[] = [
   },
 ];
 
-export function clonePets(): Pet[] {
-  return DEFAULT_PETS.map((pet) => ({ ...pet }));
+export function clonePets(source: Pet[] = DEFAULT_PETS): Pet[] {
+  return source.map((pet) => ({ ...pet }));
 }

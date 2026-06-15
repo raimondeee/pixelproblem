@@ -1,9 +1,16 @@
-import type { BattleEnemy, Spell, SpellElement, SpellHit } from '@/game/types';
+import type { AllyHit, BattleEnemy, BattleHero, Pet, Spell, SpellElement, SpellHit } from '@/game/types';
+import type { FormationRow } from '@/game/types';
 import {
   EFFECTIVENESS_MULTIPLIER,
   getEffectiveness,
   getEffectivenessLabel,
 } from '@/logic/elements';
+
+const ROW_TARGET_PRIORITY: Record<FormationRow, number> = {
+  front: 3,
+  mid: 2,
+  back: 1,
+};
 
 export function getLivingEnemies(enemies: BattleEnemy[]): BattleEnemy[] {
   return enemies.filter((enemy) => enemy.hp > 0);
@@ -142,4 +149,138 @@ export function resolveNextTargetId(
   }
 
   return pickDefaultTargetId(enemies);
+}
+
+export interface LivingAlly {
+  id: string;
+  name: string;
+  element: SpellElement;
+  row: FormationRow;
+  hp: number;
+}
+
+export function getLivingAllies(hero: BattleHero | null, pets: Pet[]): LivingAlly[] {
+  const allies: LivingAlly[] = [];
+
+  if (hero && hero.hp > 0) {
+    allies.push({
+      id: hero.id,
+      name: hero.name,
+      element: hero.element,
+      row: hero.row,
+      hp: hero.hp,
+    });
+  }
+
+  for (const pet of pets) {
+    if (pet.hp > 0) {
+      allies.push({
+        id: pet.id,
+        name: pet.name,
+        element: pet.element,
+        row: pet.row,
+        hp: pet.hp,
+      });
+    }
+  }
+
+  return allies;
+}
+
+export function pickEnemyTarget(hero: BattleHero | null, pets: Pet[]): string | null {
+  const living = getLivingAllies(hero, pets);
+  if (living.length === 0) {
+    return null;
+  }
+
+  const maxPriority = Math.max(...living.map((ally) => ROW_TARGET_PRIORITY[ally.row]));
+  const candidates = living.filter((ally) => ROW_TARGET_PRIORITY[ally.row] === maxPriority);
+  return candidates[Math.floor(Math.random() * candidates.length)]?.id ?? null;
+}
+
+function getAllyElement(
+  hero: BattleHero | null,
+  pets: Pet[],
+  allyId: string,
+): SpellElement | null {
+  if (hero?.id === allyId) {
+    return hero.element;
+  }
+
+  return pets.find((pet) => pet.id === allyId)?.element ?? null;
+}
+
+export function buildAllyHits(
+  spell: Spell,
+  difficulty: number,
+  hero: BattleHero | null,
+  pets: Pet[],
+  targetAllyId: string,
+): AllyHit[] {
+  const element = getAllyElement(hero, pets, targetAllyId);
+  if (!element) {
+    return [];
+  }
+
+  const living = getLivingAllies(hero, pets);
+  if (!living.some((ally) => ally.id === targetAllyId)) {
+    return [];
+  }
+
+  return [
+    {
+      allyId: targetAllyId,
+      damage: calculateSpellDamage(spell, difficulty, element),
+      effectiveness: getEffectiveness(spell.element, element),
+    },
+  ];
+}
+
+export function applyAllyHits(
+  hero: BattleHero | null,
+  pets: Pet[],
+  hits: AllyHit[],
+): { hero: BattleHero | null; pets: Pet[] } {
+  const damageById = new Map(hits.map((hit) => [hit.allyId, hit.damage]));
+  let nextHero = hero;
+  let nextPets = pets;
+
+  if (hero) {
+    const damage = damageById.get(hero.id);
+    if (damage !== undefined && hero.hp > 0) {
+      nextHero = { ...hero, hp: Math.max(0, hero.hp - damage) };
+    }
+  }
+
+  nextPets = pets.map((pet) => {
+    const damage = damageById.get(pet.id);
+    if (damage === undefined || pet.hp <= 0) {
+      return pet;
+    }
+
+    return { ...pet, hp: Math.max(0, pet.hp - damage) };
+  });
+
+  return { hero: nextHero, pets: nextPets };
+}
+
+export function summarizeEnemyCast(
+  spell: Spell,
+  hits: AllyHit[],
+  hero: BattleHero | null,
+  pets: Pet[],
+): string {
+  if (hits.length === 0) {
+    return `${spell.name} missed!`;
+  }
+
+  const hit = hits[0];
+  const allyName =
+    hero?.id === hit.allyId
+      ? hero.name
+      : pets.find((pet) => pet.id === hit.allyId)?.name ?? 'an ally';
+  const note = getEffectivenessLabel(hit.effectiveness);
+  const noteSuffix = note ? ` ${note}` : '';
+
+  return `${spell.name} hits ${allyName} for ${hit.damage}!${noteSuffix}`;
 }

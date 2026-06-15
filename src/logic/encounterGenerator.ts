@@ -44,6 +44,7 @@ export function generateEncounter(): BattleEnemy[] {
       maxHp,
       hp: maxHp,
       gridSlot,
+      initiative: randomInt(8, 14),
     };
   });
 }

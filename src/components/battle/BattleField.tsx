@@ -1,4 +1,5 @@
-import { areAllEnemiesDefeated } from '@/logic/combat';
+import { areAllEnemiesDefeated, getLivingEnemies } from '@/logic/combat';
+import { isCapturable } from '@/logic/capture';
 import type { BattleState, FormationRow, Spell } from '@/game/types';
 import { ULTIMATE_COMBO_REQUIREMENT } from '@/game/data/spells';
 import { BATTLE_MAP_URL } from '@/game/data/assets';
@@ -12,8 +13,12 @@ interface BattleFieldProps {
   state: BattleState;
   spells: Spell[];
   hitEnemyIds?: string[];
+  hitAllyIds?: string[];
+  isPartyTurn: boolean;
+  canCapture: boolean;
   onSelectTarget: (enemyId: string) => void;
   onSpellSelect: (spell: Spell) => void;
+  onCapture: (enemyId: string) => void;
   onToggleFormation: () => void;
   onCycleUnitRow: (unitId: string) => void;
   onSetUnitRow: (unitId: string, row: FormationRow) => void;
@@ -25,16 +30,27 @@ export function BattleField({
   state,
   spells,
   hitEnemyIds = [],
+  hitAllyIds = [],
+  isPartyTurn,
+  canCapture,
   onSelectTarget,
   onSpellSelect,
+  onCapture,
   onToggleFormation,
   onCycleUnitRow,
   onSetUnitRow,
   onFlee,
   onContinue,
 }: BattleFieldProps) {
-  const victory = areAllEnemiesDefeated(state.enemies);
-  const canInteract = !victory && state.phase === 'field' && !state.formationMode;
+  const victory = state.battleOutcome === 'victory' || areAllEnemiesDefeated(state.enemies);
+  const defeat = state.battleOutcome === 'defeat';
+  const battleEnded = victory || defeat;
+  const canInteract =
+    !battleEnded && state.phase === 'field' && !state.formationMode && isPartyTurn;
+  const capturableEnemyIds = state.enemies
+    .filter((enemy) => isCapturable(enemy))
+    .map((enemy) => enemy.id);
+  const livingEnemies = getLivingEnemies(state.enemies).length;
 
   return (
     <div className="battle-field">
@@ -49,7 +65,7 @@ export function BattleField({
 
       <div className="battle-field__content">
         <div className="battle-field__main">
-          {!victory ? (
+          {!battleEnded ? (
             <aside className="battle-field__spell-rail">
               <SpellDeck
                 spells={spells}
@@ -67,6 +83,8 @@ export function BattleField({
                 hero={state.hero}
                 pets={state.pets}
                 formationMode={state.formationMode}
+                activeActorId={state.activeCasterId}
+                hitAllyIds={hitAllyIds}
                 onCycleUnitRow={onCycleUnitRow}
                 onSetUnitRow={onSetUnitRow}
               />
@@ -77,6 +95,8 @@ export function BattleField({
                 enemies={state.enemies}
                 targetEnemyId={state.targetEnemyId}
                 hitEnemyIds={hitEnemyIds}
+                capturableEnemyIds={capturableEnemyIds}
+                activeActorId={state.activeCasterId}
                 selectable={canInteract}
                 onSelectTarget={onSelectTarget}
               />
@@ -88,13 +108,19 @@ export function BattleField({
           <div className="battle-field__status">
             <p className="battle-field__message">
               {state.message ??
-                (victory
-                  ? 'Victory!'
-                  : state.formationMode
-                    ? 'Formation mode — rearrange your party.'
-                    : 'Tap an enemy to target, then choose a spell.')}
+                (defeat
+                  ? 'Defeat… your hero has fallen.'
+                  : victory
+                    ? livingEnemies === 0
+                      ? 'Victory!'
+                      : 'All enemies cleared!'
+                    : state.formationMode
+                      ? 'Formation mode — rearrange your party.'
+                      : isPartyTurn
+                        ? 'Your turn — tap an enemy to target, then choose a spell.'
+                        : 'Waiting for the enemy…')}
             </p>
-            {!victory ? (
+            {!battleEnded ? (
               <p className="battle-field__combo" aria-label="Combo streak">
                 Combo {state.comboStreak}/{ULTIMATE_COMBO_REQUIREMENT}
               </p>
@@ -102,16 +128,26 @@ export function BattleField({
           </div>
 
           <div className="battle-field__actions">
-            {victory ? (
+            {battleEnded ? (
               <button type="button" className="battle-field__continue" onClick={onContinue}>
                 Continue
               </button>
             ) : (
               <>
+                {canCapture && state.targetEnemyId ? (
+                  <button
+                    type="button"
+                    className="battle-field__capture"
+                    onClick={() => onCapture(state.targetEnemyId!)}
+                  >
+                    Capture
+                  </button>
+                ) : null}
                 <button
                   type="button"
                   className={`battle-field__formation ${state.formationMode ? 'is-active' : ''}`}
                   onClick={onToggleFormation}
+                  disabled={!isPartyTurn || state.phase !== 'field'}
                 >
                   {state.formationMode ? 'Done' : 'Formation'}
                 </button>

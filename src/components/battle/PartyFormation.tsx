@@ -10,6 +10,8 @@ interface PartyFormationProps {
   hero: BattleHero | null;
   pets: Pet[];
   formationMode?: boolean;
+  activeActorId?: string | null;
+  hitAllyIds?: string[];
   onCycleUnitRow?: (unitId: string) => void;
   onSetUnitRow?: (unitId: string, row: FormationRow) => void;
 }
@@ -30,6 +32,8 @@ export function PartyFormation({
   hero,
   pets,
   formationMode = false,
+  activeActorId = null,
+  hitAllyIds = [],
   onCycleUnitRow,
   onSetUnitRow,
 }: PartyFormationProps) {
@@ -42,6 +46,8 @@ export function PartyFormation({
           <HeroSprite
             hero={hero}
             formationMode={formationMode}
+            isActive={hero.id === activeActorId}
+            isHit={hitAllyIds.includes(hero.id)}
             onCycle={() => onCycleUnitRow?.(hero.id)}
             onSetRow={(nextRow) => onSetUnitRow?.(hero.id, nextRow)}
           />
@@ -65,6 +71,8 @@ export function PartyFormation({
                 <PetSprite
                   pet={pet}
                   formationMode={formationMode}
+                  isActive={pet.id === activeActorId}
+                  isHit={hitAllyIds.includes(pet.id)}
                   onCycle={() => onCycleUnitRow?.(pet.id)}
                   onSetRow={(nextRow) => onSetUnitRow?.(pet.id, nextRow)}
                 />
@@ -79,13 +87,27 @@ export function PartyFormation({
 
 interface UnitSpriteProps {
   formationMode: boolean;
+  isActive: boolean;
+  isHit: boolean;
   onCycle: () => void;
   onSetRow: (row: FormationRow) => void;
+}
+
+function spriteClassName(base: string, isActive: boolean, isHit: boolean): string {
+  return [
+    base,
+    isActive ? 'party-sprite--active-turn' : '',
+    isHit ? 'party-sprite--hit' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
 }
 
 function HeroSprite({
   hero,
   formationMode,
+  isActive,
+  isHit,
   onCycle,
   onSetRow,
 }: {
@@ -117,7 +139,7 @@ function HeroSprite({
       <FormationUnit
         unitId={hero.id}
         row={hero.row}
-        className="party-sprite party-sprite--hero"
+        className={spriteClassName('party-sprite party-sprite--hero', isActive, isHit)}
         onCycle={onCycle}
         onSetRow={onSetRow}
       >
@@ -127,7 +149,10 @@ function HeroSprite({
   }
 
   return (
-    <figure className="party-sprite party-sprite--hero" data-battle-unit-id={hero.id}>
+    <figure
+      className={spriteClassName('party-sprite party-sprite--hero', isActive, isHit)}
+      data-battle-unit-id={hero.id}
+    >
       {body}
     </figure>
   );
@@ -136,6 +161,8 @@ function HeroSprite({
 function PetSprite({
   pet,
   formationMode,
+  isActive,
+  isHit,
   onCycle,
   onSetRow,
 }: {
@@ -167,7 +194,7 @@ function PetSprite({
       <FormationUnit
         unitId={pet.id}
         row={pet.row}
-        className="party-sprite"
+        className={spriteClassName('party-sprite', isActive, isHit)}
         onCycle={onCycle}
         onSetRow={onSetRow}
       >
@@ -177,7 +204,7 @@ function PetSprite({
   }
 
   return (
-    <figure className="party-sprite" data-battle-unit-id={pet.id}>
+    <figure className={spriteClassName('party-sprite', isActive, isHit)} data-battle-unit-id={pet.id}>
       {body}
     </figure>
   );
