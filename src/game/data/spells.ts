@@ -1,4 +1,5 @@
 import type { Spell, SpellElement } from '@/game/types';
+import { assetUrl } from '@/utils/assetUrl';
 
 export const SPELL_CATALOG: Spell[] = [
   {
@@ -8,8 +9,8 @@ export const SPELL_CATALOG: Spell[] = [
     color: '#e74c3c',
     power: 18,
     mathDifficulty: 2,
-    cardUrl: '/assets/spells/fire/spell_fireball_card.png',
-    projectileUrl: '/assets/spells/fire/spell_fireball.png',
+    cardUrl: assetUrl('assets/spells/fire/spell_fireball_card.png'),
+    projectileUrl: assetUrl('assets/spells/fire/spell_fireball.png'),
     targetScope: 'single',
   },
   {
@@ -19,8 +20,8 @@ export const SPELL_CATALOG: Spell[] = [
     color: '#ff6b6b',
     power: 24,
     mathDifficulty: 3,
-    cardUrl: '/assets/spells/fire/spell_firebird_card.png',
-    projectileUrl: '/assets/spells/fire/spell_firebird.png',
+    cardUrl: assetUrl('assets/spells/fire/spell_firebird_card.png'),
+    projectileUrl: assetUrl('assets/spells/fire/spell_firebird.png'),
     targetScope: 'single',
   },
   {
@@ -30,8 +31,8 @@ export const SPELL_CATALOG: Spell[] = [
     color: '#c9184a',
     power: 30,
     mathDifficulty: 4,
-    cardUrl: '/assets/spells/fire/spell_meteor_card.png',
-    projectileUrl: '/assets/spells/fire/spell_meteor.png',
+    cardUrl: assetUrl('assets/spells/fire/spell_meteor_card.png'),
+    projectileUrl: assetUrl('assets/spells/fire/spell_meteor.png'),
     targetScope: 'single',
   },
   {
@@ -41,8 +42,8 @@ export const SPELL_CATALOG: Spell[] = [
     color: '#48cae4',
     power: 14,
     mathDifficulty: 1,
-    cardUrl: '/assets/spells/water/spell_bubble_card.png',
-    projectileUrl: '/assets/spells/water/spell_bubble.png',
+    cardUrl: assetUrl('assets/spells/water/spell_bubble_card.png'),
+    projectileUrl: assetUrl('assets/spells/water/spell_bubble.png'),
     targetScope: 'single',
   },
   {
@@ -52,8 +53,8 @@ export const SPELL_CATALOG: Spell[] = [
     color: '#3498db',
     power: 20,
     mathDifficulty: 2,
-    cardUrl: '/assets/spells/water/spell_iceLance_card.png',
-    projectileUrl: '/assets/spells/water/spell_iceLance.png',
+    cardUrl: assetUrl('assets/spells/water/spell_iceLance_card.png'),
+    projectileUrl: assetUrl('assets/spells/water/spell_iceLance.png'),
     targetScope: 'single',
   },
   {
@@ -63,8 +64,8 @@ export const SPELL_CATALOG: Spell[] = [
     color: '#0077b6',
     power: 26,
     mathDifficulty: 3,
-    cardUrl: '/assets/spells/water/spell_whirlpool_card.png',
-    projectileUrl: '/assets/spells/water/spell_whirlpool.png',
+    cardUrl: assetUrl('assets/spells/water/spell_whirlpool_card.png'),
+    projectileUrl: assetUrl('assets/spells/water/spell_whirlpool.png'),
     targetScope: 'single',
   },
   {
@@ -74,8 +75,8 @@ export const SPELL_CATALOG: Spell[] = [
     color: '#52b788',
     power: 22,
     mathDifficulty: 2,
-    cardUrl: '/assets/spells/earth/spell_earthfist_card.png',
-    projectileUrl: '/assets/spells/earth/spell_earthfist.png',
+    cardUrl: assetUrl('assets/spells/earth/spell_earthfist_card.png'),
+    projectileUrl: assetUrl('assets/spells/earth/spell_earthfist.png'),
     targetScope: 'single',
   },
   {
@@ -85,8 +86,8 @@ export const SPELL_CATALOG: Spell[] = [
     color: '#40916c',
     power: 18,
     mathDifficulty: 2,
-    cardUrl: '/assets/spells/earth/spell_spike_card.png',
-    projectileUrl: '/assets/spells/earth/spell_spike.png',
+    cardUrl: assetUrl('assets/spells/earth/spell_spike_card.png'),
+    projectileUrl: assetUrl('assets/spells/earth/spell_spike.png'),
     targetScope: 'single',
   },
   {
@@ -96,8 +97,8 @@ export const SPELL_CATALOG: Spell[] = [
     color: '#27ae60',
     power: 28,
     mathDifficulty: 3,
-    cardUrl: '/assets/spells/earth/spell_boulder_card.png',
-    projectileUrl: '/assets/spells/earth/spell_boulder.png',
+    cardUrl: assetUrl('assets/spells/earth/spell_boulder_card.png'),
+    projectileUrl: assetUrl('assets/spells/earth/spell_boulder.png'),
     targetScope: 'single',
   },
   {
@@ -107,8 +108,8 @@ export const SPELL_CATALOG: Spell[] = [
     color: '#bdb2ff',
     power: 16,
     mathDifficulty: 2,
-    cardUrl: '/assets/spells/wind/spell_airBlast_card.png',
-    projectileUrl: '/assets/spells/wind/spell_airBlast.png',
+    cardUrl: assetUrl('assets/spells/wind/spell_airBlast_card.png'),
+    projectileUrl: assetUrl('assets/spells/wind/spell_airBlast.png'),
     targetScope: 'single',
   },
   {
@@ -118,8 +119,8 @@ export const SPELL_CATALOG: Spell[] = [
     color: '#9d4edd',
     power: 21,
     mathDifficulty: 2,
-    cardUrl: '/assets/spells/wind/spell_airLance_card.png',
-    projectileUrl: '/assets/spells/wind/spell_airLance.png',
+    cardUrl: assetUrl('assets/spells/wind/spell_airLance_card.png'),
+    projectileUrl: assetUrl('assets/spells/wind/spell_airLance.png'),
     targetScope: 'single',
   },
   {
@@ -129,8 +130,8 @@ export const SPELL_CATALOG: Spell[] = [
     color: '#7b2cbf',
     power: 27,
     mathDifficulty: 3,
-    cardUrl: '/assets/spells/wind/spell_tornado_card.png',
-    projectileUrl: '/assets/spells/wind/spell_tornado.png',
+    cardUrl: assetUrl('assets/spells/wind/spell_tornado_card.png'),
+    projectileUrl: assetUrl('assets/spells/wind/spell_tornado.png'),
     targetScope: 'single',
   },
 ];

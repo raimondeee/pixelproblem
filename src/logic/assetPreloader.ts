@@ -1,6 +1,7 @@
 import { LOADING_SCREEN_URL, PLAYER_ROSTER } from '@/game/data/players';
 import { BATTLE_MAP_URL } from '@/game/data/assets';
 import { SPELL_CATALOG } from '@/game/data/spells';
+import { getEnemySpriteUrl } from '@/game/types';
 
 const MIN_LOADING_MS = 2200;
 
@@ -27,8 +28,7 @@ function collectAssetUrls(): string[] {
 
   for (const element of ['fire', 'water', 'earth', 'wind'] as const) {
     for (let variant = 1; variant <= 6; variant += 1) {
-      const suffix = variant.toString().padStart(3, '0');
-      urls.add(`/assets/pixels/${element}Pixels/${element}_${suffix}.png`);
+      urls.add(getEnemySpriteUrl(element, variant));
     }
   }
 

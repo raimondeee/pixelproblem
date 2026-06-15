@@ -1,4 +1,5 @@
 import type { SpellElement } from '@/game/types';
+import { assetUrl } from '@/utils/assetUrl';
 
 export type AppScreen = 'loading' | 'player-select' | 'game';
 
@@ -12,7 +13,7 @@ export interface PlayableCharacter {
   element: SpellElement;
 }
 
-export const LOADING_SCREEN_URL = '/assets/loading-screen.png';
+export const LOADING_SCREEN_URL = assetUrl('assets/loading-screen.png');
 
 export const PLAYER_ROSTER: PlayableCharacter[] = [
   {
@@ -21,7 +22,7 @@ export const PLAYER_ROSTER: PlayableCharacter[] = [
     title: 'Verdant Sage',
     description: 'A nature mage who commands roots and leaf-light.',
     accentColor: '#52b788',
-    spriteUrl: '/assets/players/player_001.png',
+    spriteUrl: assetUrl('assets/players/player_001.png'),
     element: 'earth',
   },
   {
@@ -30,7 +31,7 @@ export const PLAYER_ROSTER: PlayableCharacter[] = [
     title: 'Star Seer',
     description: 'Reads the night sky to weave celestial spells.',
     accentColor: '#9d4edd',
-    spriteUrl: '/assets/players/player_002.png',
+    spriteUrl: assetUrl('assets/players/player_002.png'),
     element: 'wind',
   },
   {
@@ -39,7 +40,7 @@ export const PLAYER_ROSTER: PlayableCharacter[] = [
     title: 'Flame Knight',
     description: 'Charges into battle with ember-forged courage.',
     accentColor: '#e74c3c',
-    spriteUrl: '/assets/players/player_003.png',
+    spriteUrl: assetUrl('assets/players/player_003.png'),
     element: 'fire',
   },
   {
@@ -48,7 +49,7 @@ export const PLAYER_ROSTER: PlayableCharacter[] = [
     title: 'Tide Caller',
     description: 'Summons crashing waves and icy currents.',
     accentColor: '#3498db',
-    spriteUrl: '/assets/players/player_004.png',
+    spriteUrl: assetUrl('assets/players/player_004.png'),
     element: 'water',
   },
   {
@@ -57,7 +58,7 @@ export const PLAYER_ROSTER: PlayableCharacter[] = [
     title: 'Stone Warden',
     description: 'Stands firm with earth-shaping defensive magic.',
     accentColor: '#40916c',
-    spriteUrl: '/assets/players/player_005.png',
+    spriteUrl: assetUrl('assets/players/player_005.png'),
     element: 'earth',
   },
   {
@@ -66,7 +67,7 @@ export const PLAYER_ROSTER: PlayableCharacter[] = [
     title: 'Gale Runner',
     description: 'Strikes fast with wind-laced agility.',
     accentColor: '#bdb2ff',
-    spriteUrl: '/assets/players/player_006.png',
+    spriteUrl: assetUrl('assets/players/player_006.png'),
     element: 'wind',
   },
 ];

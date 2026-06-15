@@ -1,3 +1,5 @@
+import { assetUrl } from '@/utils/assetUrl';
+
 export type GameMode = 'EXPLORE' | 'BATTLE';
 
 export type FormationRow = 'back' | 'mid' | 'front';
@@ -114,5 +116,5 @@ export const ENEMY_NAMES: Record<SpellElement, string[]> = {
 
 export function getEnemySpriteUrl(element: SpellElement, variant: number): string {
   const suffix = variant.toString().padStart(3, '0');
-  return `/assets/pixels/${element}Pixels/${element}_${suffix}.png`;
+  return assetUrl(`assets/pixels/${element}Pixels/${element}_${suffix}.png`);
 }

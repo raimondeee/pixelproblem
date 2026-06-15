@@ -1,1 +1,3 @@
-export const BATTLE_MAP_URL = '/assets/battlemaps/testForest.png';
+import { assetUrl } from '@/utils/assetUrl';
+
+export const BATTLE_MAP_URL = assetUrl('assets/battlemaps/testForest.png');
