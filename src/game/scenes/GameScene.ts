@@ -1,25 +1,55 @@
 import Phaser from 'phaser';
 import {
-  BATTLE_TRIGGER_TILE,
-  MAP_LAYOUT,
-  PLAYER_START_TILE,
-  TILE_SIZE,
-} from '@/game/config/worldConfig';
+  getScreenById,
+  getStartScreen,
+  loadOverlandMapData,
+  overlandTextureKey,
+} from '@/game/data/overlandMapStore';
 import { gameEvents } from '@/game/events/GameEventBus';
 import { battleManager } from '@/game/managers/BattleManager';
 import { playerSession } from '@/game/session/PlayerSession';
+import type { MapDirection, OverlandMapData, OverlandScreen } from '@/game/types/overlandMap';
+import { normalizedToImage } from '@/logic/overlandCollision';
+import { getEncounterZoneAt } from '@/logic/encounterZones';
+import {
+  applyPhaserHorizontalFlip,
+  getVisualMoveDirection,
+} from '@/logic/mapFlip';
+import {
+  nudgeVisualEntryPoint,
+  OPPOSITE_DIRECTION,
+  visualEntryToTexture,
+} from '@/logic/mapConnections';
+import {
+  canWalkTo,
+  getEdgeConnection,
+  getNextPosition,
+  getOverlandPlayerScale,
+  MOVE_DIRECTION_TO_MAP,
+  type MoveDirection,
+  type OverlandPlayerScale,
+} from '@/logic/overlandNavigation';
 
-type Direction = 'up' | 'down' | 'left' | 'right';
+const MOVE_DURATION_MS = 110;
+const TRANSITION_FADE_MS = 160;
 
-const DIRECTION_VECTORS: Record<Direction, { x: number; y: number }> = {
-  up: { x: 0, y: -1 },
-  down: { x: 0, y: 1 },
-  left: { x: -1, y: 0 },
-  right: { x: 1, y: 0 },
-};
+const DEPTH_BACKGROUND = 0;
+const DEPTH_PLAYER = 10;
+const DEPTH_FOREGROUND = 20;
+const DEPTH_HUD = 30;
 
 export class GameScene extends Phaser.Scene {
-  private player!: Phaser.Physics.Arcade.Sprite;
+  private mapData!: OverlandMapData;
+  private currentScreen!: OverlandScreen;
+  private playerScale!: OverlandPlayerScale;
+  private player!: Phaser.GameObjects.Sprite;
+  private playerLogicalX = 0;
+  private playerLogicalY = 0;
+  private background!: Phaser.GameObjects.Image;
+  private foregroundLayer?: Phaser.GameObjects.Image;
+  private foregroundMaskGraphics?: Phaser.GameObjects.Graphics;
+  private screenLabel!: Phaser.GameObjects.Text;
+
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private wasd!: {
     W: Phaser.Input.Keyboard.Key;
@@ -28,11 +58,9 @@ export class GameScene extends Phaser.Scene {
     D: Phaser.Input.Keyboard.Key;
   };
 
-  private walls!: Phaser.Physics.Arcade.StaticGroup;
-  private battleZoneArmed = true;
   private isMoving = false;
-  private currentTile = { ...PLAYER_START_TILE };
   private inputEnabled = true;
+  private disarmedEncounterIds = new Set<string>();
   private unsubscribeMode?: () => void;
 
   constructor() {
@@ -40,6 +68,12 @@ export class GameScene extends Phaser.Scene {
   }
 
   preload(): void {
+    this.mapData = loadOverlandMapData();
+
+    for (const screen of this.mapData.screens) {
+      this.load.image(overlandTextureKey(screen.id), screen.backgroundUrl);
+    }
+
     const character = playerSession.getSelectedCharacter();
     if (character?.spriteUrl) {
       this.load.image('player-char', character.spriteUrl);
@@ -47,15 +81,15 @@ export class GameScene extends Phaser.Scene {
   }
 
   create(): void {
-    this.createMap();
+    const startScreen = getStartScreen(this.mapData);
+    this.loadScreen(startScreen, startScreen.playerStart);
     this.createPlayer();
-    this.createBattleTrigger();
     this.setupInput();
     this.setupModeListener();
   }
 
   update(): void {
-    this.updateBattleZoneArming();
+    this.updateEncounterArming();
 
     if (!this.inputEnabled || this.isMoving || battleManager.getMode() === 'BATTLE') {
       return;
@@ -67,85 +101,136 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  private createMap(): void {
-    this.walls = this.physics.add.staticGroup();
+  private loadScreen(screen: OverlandScreen, spawn: { x: number; y: number }): void {
+    this.currentScreen = screen;
+    this.playerScale = getOverlandPlayerScale(screen.imageHeight);
 
-    for (let row = 0; row < MAP_LAYOUT.length; row++) {
-      for (let col = 0; col < MAP_LAYOUT[row].length; col++) {
-        const x = col * TILE_SIZE + TILE_SIZE / 2;
-        const y = row * TILE_SIZE + TILE_SIZE / 2;
+    this.background?.destroy();
+    this.destroyForegroundLayer();
+    this.screenLabel?.destroy();
 
-        if (MAP_LAYOUT[row][col] === 1) {
-          const wall = this.add.rectangle(x, y, TILE_SIZE, TILE_SIZE, 0x4a4e69);
-          this.physics.add.existing(wall, true);
-          this.walls.add(wall);
-        } else {
-          this.add.rectangle(x, y, TILE_SIZE, TILE_SIZE, 0x22223b).setStrokeStyle(1, 0x2a2a40);
-        }
-      }
+    this.scale.setGameSize(screen.imageWidth, screen.imageHeight);
+    this.cameras.main.setBounds(0, 0, screen.imageWidth, screen.imageHeight);
+
+    this.background = this.add
+      .image(0, 0, overlandTextureKey(screen.id))
+      .setOrigin(0, 0)
+      .setDepth(DEPTH_BACKGROUND);
+    applyPhaserHorizontalFlip(this.background, screen.imageWidth, screen.flipHorizontal ?? false);
+
+    this.buildForegroundLayer(screen);
+
+    this.screenLabel = this.add
+      .text(16, 16, screen.name, {
+        fontFamily: 'monospace',
+        fontSize: `${Math.round(screen.imageHeight * 0.016)}px`,
+        color: '#f8f9fa',
+        backgroundColor: '#000000aa',
+        padding: { x: 8, y: 4 },
+      })
+      .setDepth(DEPTH_HUD)
+      .setScrollFactor(0);
+
+    const spawnPoint = normalizedToImage(spawn, screen.imageWidth, screen.imageHeight);
+
+    if (this.player) {
+      this.applyPlayerScale();
+      this.setPlayerLogicalPosition(spawnPoint.x, spawnPoint.y);
+      this.player.setDepth(DEPTH_PLAYER);
     }
   }
 
+  private buildForegroundLayer(screen: OverlandScreen): void {
+    const grid = screen.foregroundGrid;
+    const cellSize = screen.collisionCellSize;
+    const hasForeground = grid.some((row) => row.some((cell) => cell === 1));
+    if (!hasForeground) {
+      return;
+    }
+
+    const maskGraphics = this.make.graphics({ x: 0, y: 0 }, false);
+    maskGraphics.fillStyle(0xffffff, 1);
+
+    for (let row = 0; row < grid.length; row++) {
+      for (let col = 0; col < grid[row].length; col++) {
+        if (grid[row][col] === 1) {
+          maskGraphics.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+        }
+      }
+    }
+
+    const mask = maskGraphics.createGeometryMask();
+    this.foregroundMaskGraphics = maskGraphics;
+
+    if (screen.flipHorizontal) {
+      maskGraphics.setScale(-1, 1);
+      maskGraphics.setPosition(screen.imageWidth, 0);
+    }
+
+    this.foregroundLayer = this.add
+      .image(0, 0, overlandTextureKey(screen.id))
+      .setOrigin(0, 0)
+      .setDepth(DEPTH_FOREGROUND)
+      .setMask(mask);
+    applyPhaserHorizontalFlip(this.foregroundLayer, screen.imageWidth, screen.flipHorizontal ?? false);
+  }
+
+  private destroyForegroundLayer(): void {
+    this.foregroundLayer?.destroy();
+    this.foregroundMaskGraphics?.destroy();
+    this.foregroundLayer = undefined;
+    this.foregroundMaskGraphics = undefined;
+  }
+
   private createPlayer(): void {
-    const startX = PLAYER_START_TILE.x * TILE_SIZE + TILE_SIZE / 2;
-    const startY = PLAYER_START_TILE.y * TILE_SIZE + TILE_SIZE / 2;
+    const startScreen = getStartScreen(this.mapData);
+    this.playerScale = getOverlandPlayerScale(startScreen.imageHeight);
+    const spawn = normalizedToImage(
+      startScreen.playerStart,
+      startScreen.imageWidth,
+      startScreen.imageHeight,
+    );
 
     if (this.textures.exists('player-char')) {
-      this.player = this.physics.add.sprite(startX, startY, 'player-char');
-      this.player.setDisplaySize(TILE_SIZE - 4, TILE_SIZE - 4);
+      this.player = this.add.sprite(spawn.x, spawn.y, 'player-char');
     } else {
-      const size = TILE_SIZE - 8;
+      const size = this.playerScale.playerSize - 8;
       const gfx = this.make.graphics({}, false);
       gfx.fillStyle(0xf2e9e4, 1);
       gfx.fillRect(0, 0, size, size);
       gfx.generateTexture('player', size, size);
       gfx.destroy();
 
-      this.player = this.physics.add.sprite(startX, startY, 'player');
+      this.player = this.add.sprite(spawn.x, spawn.y, 'player');
     }
 
-    this.player.setCollideWorldBounds(true);
-
-    const body = this.player.body as Phaser.Physics.Arcade.Body;
-    body.setSize(TILE_SIZE - 12, TILE_SIZE - 12);
-    body.setOffset(6, 6);
-
-    this.physics.add.collider(this.player, this.walls);
+    this.applyPlayerScale();
+    this.setPlayerLogicalPosition(spawn.x, spawn.y);
+    this.player.setDepth(DEPTH_PLAYER);
   }
 
-  private createBattleTrigger(): void {
-    const x = BATTLE_TRIGGER_TILE.x * TILE_SIZE + TILE_SIZE / 2;
-    const y = BATTLE_TRIGGER_TILE.y * TILE_SIZE + TILE_SIZE / 2;
-
-    this.add.rectangle(x, y, TILE_SIZE - 4, TILE_SIZE - 4, 0xc9184a, 0.35)
-      .setStrokeStyle(2, 0xff4d6d);
+  private isScreenFlipped(): boolean {
+    return this.currentScreen.flipHorizontal ?? false;
   }
 
-  private updateBattleZoneArming(): void {
-    if (!this.isOnBattleTriggerTile()) {
-      this.battleZoneArmed = true;
-    }
+  private setPlayerLogicalPosition(x: number, y: number): void {
+    this.playerLogicalX = x;
+    this.playerLogicalY = y;
+    this.syncPlayerDisplay();
   }
 
-  private isOnBattleTriggerTile(): boolean {
-    return (
-      this.currentTile.x === BATTLE_TRIGGER_TILE.x &&
-      this.currentTile.y === BATTLE_TRIGGER_TILE.y
+  private syncPlayerDisplay(): void {
+    const flipped = this.isScreenFlipped();
+    const { imageWidth } = this.currentScreen;
+    this.player.setPosition(
+      flipped ? imageWidth - this.playerLogicalX : this.playerLogicalX,
+      this.playerLogicalY,
     );
   }
 
-  private checkBattleTrigger(): void {
-    if (
-      !this.battleZoneArmed ||
-      battleManager.getMode() !== 'EXPLORE' ||
-      !this.isOnBattleTriggerTile()
-    ) {
-      return;
-    }
-
-    this.battleZoneArmed = false;
-    this.disableInput();
-    gameEvents.emit('battle-trigger', { enemyId: 'ene-fire' });
+  private applyPlayerScale(): void {
+    const { playerSize } = this.playerScale;
+    this.player.setDisplaySize(playerSize, playerSize);
   }
 
   private setupInput(): void {
@@ -167,7 +252,7 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
-  private getPressedDirection(): Direction | null {
+  private getPressedDirection(): MoveDirection | null {
     if (this.cursors.up.isDown || this.wasd.W.isDown) return 'up';
     if (this.cursors.down.isDown || this.wasd.S.isDown) return 'down';
     if (this.cursors.left.isDown || this.wasd.A.isDown) return 'left';
@@ -175,47 +260,141 @@ export class GameScene extends Phaser.Scene {
     return null;
   }
 
-  private tryMove(direction: Direction): void {
-    const vector = DIRECTION_VECTORS[direction];
-    const nextTile = {
-      x: this.currentTile.x + vector.x,
-      y: this.currentTile.y + vector.y,
-    };
+  private tryMove(direction: MoveDirection): void {
+    const { moveStep, playerSize } = this.playerScale;
+    const flipped = this.isScreenFlipped();
+    const moveDirection = getVisualMoveDirection(direction, flipped);
+    const next = getNextPosition(
+      this.playerLogicalX,
+      this.playerLogicalY,
+      moveDirection,
+      moveStep,
+    );
+    const edgeConnection = getEdgeConnection(
+      this.currentScreen,
+      next.x,
+      next.y,
+      moveDirection,
+    );
 
-    if (!this.isWalkable(nextTile.x, nextTile.y)) {
+    if (edgeConnection) {
+      const visualExit = MOVE_DIRECTION_TO_MAP[direction];
+      this.transitionToScreen(
+        edgeConnection.targetScreenId,
+        edgeConnection.entryPoint,
+        OPPOSITE_DIRECTION[visualExit],
+      );
+      return;
+    }
+
+    if (!canWalkTo(this.currentScreen, next.x, next.y, playerSize)) {
       return;
     }
 
     this.isMoving = true;
-    this.currentTile = nextTile;
 
-    const targetX = nextTile.x * TILE_SIZE + TILE_SIZE / 2;
-    const targetY = nextTile.y * TILE_SIZE + TILE_SIZE / 2;
+    const tweenTarget = { x: this.playerLogicalX, y: this.playerLogicalY };
 
     this.tweens.add({
-      targets: this.player,
-      x: targetX,
-      y: targetY,
-      duration: 120,
+      targets: tweenTarget,
+      x: next.x,
+      y: next.y,
+      duration: MOVE_DURATION_MS,
       ease: 'Linear',
+      onUpdate: () => {
+        this.setPlayerLogicalPosition(tweenTarget.x, tweenTarget.y);
+      },
       onComplete: () => {
         this.isMoving = false;
-        this.checkBattleTrigger();
+        this.checkEncounterTrigger();
       },
     });
   }
 
-  private isWalkable(tileX: number, tileY: number): boolean {
-    if (
-      tileY < 0 ||
-      tileY >= MAP_LAYOUT.length ||
-      tileX < 0 ||
-      tileX >= MAP_LAYOUT[0].length
-    ) {
-      return false;
+  private updateEncounterArming(): void {
+    const zones = this.currentScreen.encounterZones ?? [];
+    if (!zones.length || !this.player) {
+      return;
     }
 
-    return MAP_LAYOUT[tileY][tileX] === 0;
+    const { imageWidth, imageHeight } = this.currentScreen;
+
+    for (const zone of zones) {
+      const inside =
+        getEncounterZoneAt(
+          zones,
+          this.playerLogicalX,
+          this.playerLogicalY,
+          imageWidth,
+          imageHeight,
+        )?.id === zone.id;
+
+      if (!inside) {
+        this.disarmedEncounterIds.delete(zone.id);
+      }
+    }
+  }
+
+  private checkEncounterTrigger(): void {
+    if (battleManager.getMode() !== 'EXPLORE' || !this.player) {
+      return;
+    }
+
+    const { imageWidth, imageHeight, encounterZones } = this.currentScreen;
+    const zone = getEncounterZoneAt(
+      encounterZones,
+      this.playerLogicalX,
+      this.playerLogicalY,
+      imageWidth,
+      imageHeight,
+    );
+
+    if (!zone || this.disarmedEncounterIds.has(zone.id)) {
+      return;
+    }
+
+    this.disarmedEncounterIds.add(zone.id);
+    this.disableInput();
+    gameEvents.emit('battle-trigger', { enemyId: zone.id });
+  }
+
+  private transitionToScreen(
+    targetScreenId: string,
+    entryPoint: { x: number; y: number },
+    exitDirection: MapDirection,
+  ): void {
+    const targetScreen = getScreenById(this.mapData, targetScreenId);
+    if (!targetScreen) return;
+
+    const spawn = nudgeVisualEntryPoint(entryPoint, exitDirection);
+    const textureSpawn = visualEntryToTexture(spawn, targetScreen.flipHorizontal ?? false);
+
+    this.isMoving = true;
+    this.disableInput();
+
+    this.cameras.main.fadeOut(TRANSITION_FADE_MS, 0, 0, 0);
+
+    this.time.delayedCall(TRANSITION_FADE_MS, () => {
+      this.loadScreen(targetScreen, textureSpawn);
+
+      if (this.player) {
+        const worldPoint = normalizedToImage(
+          textureSpawn,
+          targetScreen.imageWidth,
+          targetScreen.imageHeight,
+        );
+        this.setPlayerLogicalPosition(worldPoint.x, worldPoint.y);
+      }
+
+      this.cameras.main.fadeIn(TRANSITION_FADE_MS, 0, 0, 0);
+
+      this.time.delayedCall(TRANSITION_FADE_MS, () => {
+        this.isMoving = false;
+        if (battleManager.getMode() === 'EXPLORE') {
+          this.enableInput();
+        }
+      });
+    });
   }
 
   private disableInput(): void {

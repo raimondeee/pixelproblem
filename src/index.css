@@ -31,3 +31,8 @@ button {
 #root {
   min-height: 100dvh;
 }
+
+#root:has(.app--overland) {
+  height: 100dvh;
+  overflow: hidden;
+}

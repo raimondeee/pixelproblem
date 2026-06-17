@@ -1,18 +1,17 @@
 import Phaser from 'phaser';
+import { getStartScreen, loadOverlandMapData } from '@/game/data/overlandMapStore';
 import { GameScene } from '@/game/scenes/GameScene';
-import {
-  MAP_HEIGHT,
-  MAP_WIDTH,
-  TILE_SIZE,
-} from '@/game/config/worldConfig';
 
 export function createPhaserConfig(parent: HTMLElement): Phaser.Types.Core.GameConfig {
+  const mapData = loadOverlandMapData();
+  const startScreen = getStartScreen(mapData);
+
   return {
     type: Phaser.AUTO,
     parent,
-    width: MAP_WIDTH * TILE_SIZE,
-    height: MAP_HEIGHT * TILE_SIZE,
-    backgroundColor: '#1a1a2e',
+    width: startScreen.imageWidth,
+    height: startScreen.imageHeight,
+    backgroundColor: '#090b10',
     physics: {
       default: 'arcade',
       arcade: {
@@ -21,8 +20,9 @@ export function createPhaserConfig(parent: HTMLElement): Phaser.Types.Core.GameC
       },
     },
     scale: {
-      mode: Phaser.Scale.FIT,
+      mode: Phaser.Scale.ENVELOP,
       autoCenter: Phaser.Scale.CENTER_BOTH,
+      parent,
     },
     scene: [GameScene],
     input: {

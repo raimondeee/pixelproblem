@@ -1,7 +1,7 @@
 import type { SpellElement } from '@/game/types';
 import { assetUrl } from '@/utils/assetUrl';
 
-export type AppScreen = 'loading' | 'player-select' | 'game';
+export type AppScreen = 'loading' | 'player-select' | 'game' | 'map-editor';
 
 export interface PlayableCharacter {
   id: string;
